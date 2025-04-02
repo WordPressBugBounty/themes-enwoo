@@ -4,7 +4,14 @@
  */
 $the_theme = wp_get_theme();
 define('ENWOO_VERSION', $the_theme->get( 'Version' ));
-
+add_action(
+	'doing_it_wrong_run',
+	static function ( $function_name ) {
+		if ( '_load_textdomain_just_in_time' === $function_name ) {
+			debug_print_backtrace();
+		}
+	}
+);
 add_action('after_setup_theme', 'enwoo_setup');
 
 if (!function_exists('enwoo_setup')) :
@@ -416,25 +423,30 @@ if (!function_exists('enwoo_menu_button')) {
  */
 require_once( trailingslashit(get_template_directory()) . 'lib/wp_bootstrap_navwalker.php' );
 
-/**
- * Register Theme Info Page
- */
-require_once( trailingslashit(get_template_directory()) . 'lib/enwoo-dashboard.php' );
-if ( is_admin() ) {
-	require_once( trailingslashit( get_template_directory() ) . 'lib/enwoo-plugin-install.php' );
+
+add_action('init', 'enwoo_dashboard_customizer');
+
+function enwoo_dashboard_customizer() {
+	/**
+	 * Register Theme Info Page
+	 */
+	require_once( trailingslashit(get_template_directory()) . 'lib/enwoo-dashboard.php' );
+	if ( is_admin() ) {
+		require_once( trailingslashit( get_template_directory() ) . 'lib/enwoo-plugin-install.php' );
+	}
+	/**
+	 * Customizer options
+	 */
+	require_once( trailingslashit(get_template_directory()) . 'lib/customizer.php' );
+	require_once( trailingslashit(get_template_directory()) . 'lib/customizer-recommend.php' );
 }
-/**
- * Customizer options
- */
-require_once( trailingslashit(get_template_directory()) . 'lib/customizer.php' );
-require_once( trailingslashit(get_template_directory()) . 'lib/customizer-recommend.php' );
 
 if (class_exists('WooCommerce')) {
 
-    /**
-     * WooCommerce options
-     */
-    require_once( trailingslashit(get_template_directory()) . 'lib/woocommerce.php' );
+	/**
+	 * WooCommerce options
+	 */
+	require_once( trailingslashit(get_template_directory()) . 'lib/woocommerce.php' );
 }
 
 add_action('widgets_init', 'enwoo_widgets_init');
